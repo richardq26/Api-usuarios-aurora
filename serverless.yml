@@ -23,7 +23,12 @@ functions:
       - http:
           path: /obtener
           method: get
-
+  enviar:
+    handler: handler.enviar
+    events:
+      - http:
+            path: /enviar
+            method: post
 
 plugins:
   - serverless-offline

@@ -77,6 +77,12 @@
         "LogGroupName": "/aws/lambda/apicategorias-dev-hello"
       }
     },
+    "EnviarLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/apicategorias-dev-enviar"
+      }
+    },
     "IamRoleLambdaExecution": {
       "Type": "AWS::IAM::Role",
       "Properties": {
@@ -161,7 +167,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/apicategorias/dev/1616536648992-2021-03-23T21:57:28.992Z/apicategorias.zip"
+          "S3Key": "serverless/apicategorias/dev/1616538488140-2021-03-23T22:28:08.140Z/apicategorias.zip"
         },
         "Handler": "handler.hello",
         "Runtime": "nodejs12.x",
@@ -179,14 +185,49 @@
         "HelloLogGroup"
       ]
     },
-    "HelloLambdaVersiontkOclBFZCWPKkpQz7fhnpk9qknawOeS4uMdNKg78J8": {
+    "EnviarLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/apicategorias/dev/1616538488140-2021-03-23T22:28:08.140Z/apicategorias.zip"
+        },
+        "Handler": "handler.enviar",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "apicategorias-dev-enviar",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "EnviarLogGroup"
+      ]
+    },
+    "HelloLambdaVersionmqxoyoFRyOQ0HDA6kA15M2Ix3ANwoXSRX1cGLTao": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "HelloLambdaFunction"
         },
-        "CodeSha256": "uqv6hQFddcnYpKnxEBb2bMhReVE1rGj7EhEknMkN9yo="
+        "CodeSha256": "fi8oYRYhmbr3+raKmPbGdvKPHJpbNHmA8yUckR/GpFE="
+      }
+    },
+    "EnviarLambdaVersionsJQ9VtPkn2ouCjMzdhi5CTdhoHUmyE0BMQ6CtXusB5E": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "EnviarLambdaFunction"
+        },
+        "CodeSha256": "fi8oYRYhmbr3+raKmPbGdvKPHJpbNHmA8yUckR/GpFE="
       }
     },
     "ApiGatewayRestApi": {
@@ -211,6 +252,21 @@
           ]
         },
         "PathPart": "obtener",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceEnviar": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "ApiGatewayRestApi",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "enviar",
         "RestApiId": {
           "Ref": "ApiGatewayRestApi"
         }
@@ -259,7 +315,50 @@
         "MethodResponses": []
       }
     },
-    "ApiGatewayDeployment1616536641343": {
+    "ApiGatewayMethodEnviarPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "POST",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceEnviar"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "EnviarLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      }
+    },
+    "ApiGatewayDeployment1616538481173": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -268,7 +367,8 @@
         "StageName": "dev"
       },
       "DependsOn": [
-        "ApiGatewayMethodObtenerGet"
+        "ApiGatewayMethodObtenerGet",
+        "ApiGatewayMethodEnviarPost"
       ]
     },
     "HelloLambdaPermissionApiGateway": {
@@ -277,6 +377,43 @@
         "FunctionName": {
           "Fn::GetAtt": [
             "HelloLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "EnviarLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "EnviarLambdaFunction",
             "Arn"
           ]
         },
@@ -318,7 +455,13 @@
     "HelloLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "HelloLambdaVersiontkOclBFZCWPKkpQz7fhnpk9qknawOeS4uMdNKg78J8"
+        "Ref": "HelloLambdaVersionmqxoyoFRyOQ0HDA6kA15M2Ix3ANwoXSRX1cGLTao"
+      }
+    },
+    "EnviarLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "EnviarLambdaVersionsJQ9VtPkn2ouCjMzdhi5CTdhoHUmyE0BMQ6CtXusB5E"
       }
     },
     "ServiceEndpoint": {
