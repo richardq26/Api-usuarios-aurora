@@ -1,0 +1,34 @@
+
+service: apicategorias
+
+frameworkVersion: '2'
+
+package:
+  include:
+    - node_modules/
+provider:
+  name: aws
+  runtime: nodejs12.x
+  apiGateway:  #estas 2 lineas hacen que se cambie el order del nombre del api getway
+    shouldStartNameWithService: true
+  lambdaHashingVersion: 20201221
+  region: us-east-1
+  profile: apicategorias
+
+functions:
+  hello:
+    handler: handler.hello
+    
+    events:
+      - http:
+          path: /obtener
+          method: get
+  enviar:
+    handler: handler.enviar
+    events:
+      - http:
+            path: /enviar
+            method: post
+
+plugins:
+  - serverless-offline

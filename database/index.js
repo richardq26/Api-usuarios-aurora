@@ -15,7 +15,8 @@ module.exports = async () => {
     region: "us-east-1",
     synchronize: true,
     entities:[
-      new EntitySchema(require("../entities/userprueba"))
+      new EntitySchema(require("../pruebaus")),
+      new EntitySchema(require("../usuario"))
     ]
   });
 

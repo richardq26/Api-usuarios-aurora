@@ -15,20 +15,29 @@ provider:
   region: us-east-1
   profile: apicategorias
 
+custom:
+  arnCognito: arn:aws:cognito-idp:us-east-1:525713275182:userpool/us-east-1_urWAO6CX4
 functions:
-  hello:
-    handler: handler.hello
+  app:
+    handler: handler.Server
     
     events:
       - http:
-          path: /obtener
+          path: /user
           method: get
-  enviar:
-    handler: handler.enviar
+      - http: 
+          path: /user
+          method: post
+      - http:
+          path: /user/signup
+          method: post
+  hello:
+    handler: handler.hello
     events:
       - http:
-            path: /enviar
-            method: post
+          path: /traer
+          method: get
+  
 
 plugins:
   - serverless-offline

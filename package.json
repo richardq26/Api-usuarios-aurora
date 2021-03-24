@@ -4,6 +4,7 @@
   "description": "",
   "main": "database.js",
   "dependencies": {
+    "amazon-cognito-identity-js": "^4.6.0",
     "aws-sdk": "^2.869.0",
     "cors": "^2.8.5",
     "lambda-api": "^0.10.7",

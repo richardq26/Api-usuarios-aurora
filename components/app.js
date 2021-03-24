@@ -6,7 +6,7 @@ class App {
 
   setRoutes() {
     this.app.register(require("./userprueba/userprueba.routes"), {
-      prefix: "/obtener",
+      prefix: "/user",
     });
   }
 }
