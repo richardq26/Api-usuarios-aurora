@@ -77,6 +77,12 @@
         "LogGroupName": "/aws/lambda/apicategorias-dev-app"
       }
     },
+    "HelloLogGroup": {
+      "Type": "AWS::Logs::LogGroup",
+      "Properties": {
+        "LogGroupName": "/aws/lambda/apicategorias-dev-hello"
+      }
+    },
     "IamRoleLambdaExecution": {
       "Type": "AWS::IAM::Role",
       "Properties": {
@@ -161,7 +167,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/apicategorias/dev/1616575665204-2021-03-24T08:47:45.204Z/apicategorias.zip"
+          "S3Key": "serverless/apicategorias/dev/1616683324612-2021-03-25T14:42:04.612Z/apicategorias.zip"
         },
         "Handler": "handler.Server",
         "Runtime": "nodejs12.x",
@@ -179,14 +185,49 @@
         "AppLogGroup"
       ]
     },
-    "AppLambdaVersionuehBSF7VWLos9lgZO87vFEfdxxAMTkrygDfx1eviQ": {
+    "HelloLambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/apicategorias/dev/1616683324612-2021-03-25T14:42:04.612Z/apicategorias.zip"
+        },
+        "Handler": "handler.hello",
+        "Runtime": "nodejs12.x",
+        "FunctionName": "apicategorias-dev-hello",
+        "MemorySize": 1024,
+        "Timeout": 6,
+        "Role": {
+          "Fn::GetAtt": [
+            "IamRoleLambdaExecution",
+            "Arn"
+          ]
+        }
+      },
+      "DependsOn": [
+        "HelloLogGroup"
+      ]
+    },
+    "AppLambdaVersionMAoKYmSzw7MQKqPg3CK9VDS5WlguBXHoBSXwX2Xwbo": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "AppLambdaFunction"
         },
-        "CodeSha256": "owoUWGxp6aXZBi9uiQb2vGoDc/p0z49TMs8VF4vQVWc="
+        "CodeSha256": "d9SIvfTEPfEiLQKcbRT8FG5wfyi5OLQwKW9sis/TeZU="
+      }
+    },
+    "HelloLambdaVersionwjRSdZd8DvX9JA6gbzgcaiXbN8PAeeR1rlaQm6F4Nho": {
+      "Type": "AWS::Lambda::Version",
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "FunctionName": {
+          "Ref": "HelloLambdaFunction"
+        },
+        "CodeSha256": "d9SIvfTEPfEiLQKcbRT8FG5wfyi5OLQwKW9sis/TeZU="
       }
     },
     "ApiGatewayRestApi": {
@@ -211,6 +252,57 @@
           ]
         },
         "PathPart": "user",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceUserSignup": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Ref": "ApiGatewayResourceUser"
+        },
+        "PathPart": "signup",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceUserLogin": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Ref": "ApiGatewayResourceUser"
+        },
+        "PathPart": "login",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceUserMailprueba": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Ref": "ApiGatewayResourceUser"
+        },
+        "PathPart": "mailprueba",
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        }
+      }
+    },
+    "ApiGatewayResourceTraer": {
+      "Type": "AWS::ApiGateway::Resource",
+      "Properties": {
+        "ParentId": {
+          "Fn::GetAtt": [
+            "ApiGatewayRestApi",
+            "RootResourceId"
+          ]
+        },
+        "PathPart": "traer",
         "RestApiId": {
           "Ref": "ApiGatewayRestApi"
         }
@@ -302,7 +394,179 @@
         "MethodResponses": []
       }
     },
-    "ApiGatewayDeployment1616575657933": {
+    "ApiGatewayMethodUserSignupPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "POST",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceUserSignup"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "AppLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      }
+    },
+    "ApiGatewayMethodUserLoginPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "POST",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceUserLogin"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "AppLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      }
+    },
+    "ApiGatewayMethodUserMailpruebaPost": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "POST",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceUserMailprueba"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "AppLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      }
+    },
+    "ApiGatewayMethodTraerGet": {
+      "Type": "AWS::ApiGateway::Method",
+      "Properties": {
+        "HttpMethod": "GET",
+        "RequestParameters": {},
+        "ResourceId": {
+          "Ref": "ApiGatewayResourceTraer"
+        },
+        "RestApiId": {
+          "Ref": "ApiGatewayRestApi"
+        },
+        "ApiKeyRequired": false,
+        "AuthorizationType": "NONE",
+        "Integration": {
+          "IntegrationHttpMethod": "POST",
+          "Type": "AWS_PROXY",
+          "Uri": {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition"
+                },
+                ":apigateway:",
+                {
+                  "Ref": "AWS::Region"
+                },
+                ":lambda:path/2015-03-31/functions/",
+                {
+                  "Fn::GetAtt": [
+                    "HelloLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "/invocations"
+              ]
+            ]
+          }
+        },
+        "MethodResponses": []
+      }
+    },
+    "ApiGatewayDeployment1616683315998": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -312,7 +576,11 @@
       },
       "DependsOn": [
         "ApiGatewayMethodUserGet",
-        "ApiGatewayMethodUserPost"
+        "ApiGatewayMethodUserPost",
+        "ApiGatewayMethodUserSignupPost",
+        "ApiGatewayMethodUserLoginPost",
+        "ApiGatewayMethodUserMailpruebaPost",
+        "ApiGatewayMethodTraerGet"
       ]
     },
     "AppLambdaPermissionApiGateway": {
@@ -321,6 +589,43 @@
         "FunctionName": {
           "Fn::GetAtt": [
             "AppLambdaFunction",
+            "Arn"
+          ]
+        },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Join": [
+            "",
+            [
+              "arn:",
+              {
+                "Ref": "AWS::Partition"
+              },
+              ":execute-api:",
+              {
+                "Ref": "AWS::Region"
+              },
+              ":",
+              {
+                "Ref": "AWS::AccountId"
+              },
+              ":",
+              {
+                "Ref": "ApiGatewayRestApi"
+              },
+              "/*/*"
+            ]
+          ]
+        }
+      }
+    },
+    "HelloLambdaPermissionApiGateway": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "HelloLambdaFunction",
             "Arn"
           ]
         },
@@ -362,7 +667,13 @@
     "AppLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "AppLambdaVersionuehBSF7VWLos9lgZO87vFEfdxxAMTkrygDfx1eviQ"
+        "Ref": "AppLambdaVersionMAoKYmSzw7MQKqPg3CK9VDS5WlguBXHoBSXwX2Xwbo"
+      }
+    },
+    "HelloLambdaFunctionQualifiedArn": {
+      "Description": "Current Lambda function version",
+      "Value": {
+        "Ref": "HelloLambdaVersionwjRSdZd8DvX9JA6gbzgcaiXbN8PAeeR1rlaQm6F4Nho"
       }
     },
     "ServiceEndpoint": {

@@ -16,7 +16,8 @@ module.exports = async () => {
     synchronize: true,
     entities:[
       new EntitySchema(require("./usuario")),
-      new EntitySchema(require("./pruebaus"))
+      new EntitySchema(require("./pruebaus")),
+      new EntitySchema(require("./entities/imagenes"))
     ]
   });
 

@@ -4,6 +4,7 @@ const app = require("./components/app");
 const getConnection = require("./database");
 module.exports.Server = async (event, context, callback) => {
   context.callbackWaitsForEmptyEventLoop = false;
+  console.log(event)
   return await app.run(event, context, callback);
 };
 

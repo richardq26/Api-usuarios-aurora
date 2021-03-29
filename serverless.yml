@@ -25,12 +25,37 @@ functions:
       - http:
           path: /user
           method: get
+          authorizer:
+              arn: ${self:custom.arnCognito}
+
       - http: 
           path: /user
           method: post
       - http:
           path: /user/signup
           method: post
+      - http:
+          path: /user/login
+          method: post
+      - http:
+          path: /user/mailprueba
+          method: post
+      - http:
+            path: /user/listobjects
+            method: get
+      - http:
+            path: /user/uploadimg
+            method: post
+      - http:
+          path: /document/upload
+          method: post
+      - http:
+          path: /api/document/getUrlPreload
+          method: post
+          cors:
+            origin: '*'
+          authorizer:
+            arn: ${self:custom.arnCognito} 
   hello:
     handler: handler.hello
     events:
